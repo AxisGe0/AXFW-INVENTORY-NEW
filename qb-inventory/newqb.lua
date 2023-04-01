@@ -538,7 +538,7 @@ end)
 RegisterNetEvent('inventory:server:UseItem', function(inventory, item)
 	local src = source
 	if inventory ~= "player" and inventory ~= "hotbar" then return end
-	local itemData = GetItemBySlot(src, item.slot)
+	local itemData = GetItemBySlot(src, item.item)
 	if not itemData then return end
 	local itemInfo = QBCore.Shared.Items[itemData.name]
 	if itemData.type == "weapon" then
@@ -547,5 +547,8 @@ RegisterNetEvent('inventory:server:UseItem', function(inventory, item)
 	else
 		UseItem(itemData.name, src, itemData)
 		TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, "use")
+	end
+	if itemInfo.shouldClose then 
+		TriggerClientEvent('ax-inv:Client:CloseInventory',src)
 	end
 end)

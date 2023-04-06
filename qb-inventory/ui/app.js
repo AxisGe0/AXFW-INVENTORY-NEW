@@ -50,7 +50,7 @@ Ax.Inventory.Open = function(items,refresh,other,plyweight){
                 $('.inventory').find(`[data-other-slot="${v.slot}"]`).html(`
                     <img src="items/${v.image}">
                     <div class="item-amount">${v.amount}</div>
-                `).attr('data-name',v.name).attr('data-label',v.label).attr('data-quality',v.info.quality)
+                `).removeData().data(v)
             }
         })
     }else{
@@ -61,7 +61,7 @@ Ax.Inventory.Open = function(items,refresh,other,plyweight){
             $('.inventory').find(`[data-slot="${v.slot}"]`).html(`
                 <img src="items/${v.image}">
                 <div class="item-amount">${v.amount}</div>
-            `).attr('data-name',v.name).attr('data-label',v.label).attr('data-quality',v.info.quality)
+            `).removeData().data(v)
         }
     })
     Ax.Inventory.WeightProgress(plyweight)
@@ -143,7 +143,7 @@ Ax.Inventory.Utils = function(){
         var value = $(this).val()
         $('.item-box').each(function(){
             if ($(this).parent().attr('class') != 'cloth-items'){
-                if($(this).attr('data-name') && $(this).attr('data-name').includes(value)){
+                if($(this).data('name') && $(this).data('name').includes(value)){
                     $(this).css('opacity','1.0')
                 }else{
                     $(this).css('opacity','0.4')
@@ -155,18 +155,26 @@ Ax.Inventory.Utils = function(){
         })
     })
     $('.item-box').each(function(){
-        var name = $(this).attr('data-label')
-        var amount = $(this).find('.item-amount').html()
+        var name = $(this).data('label')
+        var amount = $(this).data('amount')
         if (name){
-            $(this).attr('title',`
-            <h>${name}<h>
-            <span style="display:block;font-size:1.5vh">Amount ${amount}</span>
+            $(this).attr('title',
             `
-            ).tooltip({content:$(this).attr('title'),track:true})
-            if($(this).attr('data-quality')){
-                $(this).attr('title',$(this).attr('title')+`<span style="display:block;font-size:1.5vh">Quality ${$(this).attr('data-quality')}</span>`).tooltip({content:$(this).attr('title'),track:true})
-            }
+                <h>${name}<h>
+                <span style="display:block;font-size:1.5vh">Amount ${amount}</span>
+            `)
         }
+        var tooltips = {
+            [$(this).data('info') && $(this).data('info').quality || null] : `<span style="display:block;font-size:1.5vh">Quality %this%</span>`
+        }
+        var elm = $(this)
+        $.each(tooltips,function(k,v){
+            if (k != 'null'){
+                var text = v.replace('%this%',k)
+                $(elm).attr('title',$(elm).attr('title')+text)
+            }
+        })
+        $(this).tooltip({content:$(this).attr('title'),track:true})
     })
     $('.settings i').off().click(function(){
         $('.settings-tab').fadeToggle()

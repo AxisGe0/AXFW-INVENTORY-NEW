@@ -102,3 +102,7 @@ QBCore.Commands.Add('clearinv', 'Clear Players Inventory (Admin Only)', { { name
         QBCore.Functions.Notify(source, "Player not online", 'error')
     end
 end, 'admin')
+
+QBCore.Commands.Add("rob", "Rob Player", {}, false, function(source, _)
+	TriggerClientEvent("police:client:RobPlayer", source)
+end)

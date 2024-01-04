@@ -8,6 +8,18 @@ This inventory was built from scratch..
 
 FAQs
 
+(Solstice Edit Bug Fixes / Features)
+* Replaced iscontrolreleased with native registerkeymapping (better optimized and more user friendly)
+* Replaced sql calls with oxmysql
+
+(Solstice Edit Planned Features)
+* Animation when closing trunk
+* Make it where police can still search pockets
+* Add a config.lua to make it more user friendly
+* Better opening and closing methods of the inventory
+* Tooltips automatically populated from shared items description
+* Tooltips automatically convert normal inventory metadata (or easier approach)
+* Fully intergrate into QBCore
 
 Features
 

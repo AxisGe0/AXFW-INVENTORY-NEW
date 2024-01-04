@@ -1,41 +1,48 @@
 QBCore = exports['qb-core']:GetCoreObject()
-CreateThread(function()
-    while true do 
-        if IsControlJustReleased(0,Keys['K']) then 
-            TriggerServerEvent('ax-inv:Server:OpenInventory')
-        end
-        if IsControlJustReleased(0,Keys['G']) then
-            local ped = GetPlayerPed(-1) 
-            local coords = GetEntityCoords(ped)
-            if IsPedInAnyVehicle(GetPlayerPed(-1)) then
-                local veh = GetVehiclePedIsIn(ped,false)
-                local plate = GetVehicleNumberPlateText(veh):gsub(' ','')
-                TriggerServerEvent('ax-inv:Server:OpenInventory','GloveBox-'..plate,{slots=5})
-            else 
-                local vehicle = QBCore.Functions.GetClosestVehicle()
-                if vehicle ~= 0 and vehicle ~= nil then
-                    local trunkcoords = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
-                    if (IsBackEngine(GetEntityModel(vehicle))) then
-                        trunkcoords = GetOffsetFromEntityInWorldCoords(vehicle, 0, 2.5, 0)
-                    end
-                    if (GetDistanceBetweenCoords(coords.x, coords.y, coords.z, trunkcoords) < 2.0) and not IsPedInAnyVehicle(ped) then
-                        if GetVehicleDoorLockStatus(vehicle) < 2 then
-                            local plate = GetVehicleNumberPlateText(vehicle):gsub(' ','')
-                            TriggerServerEvent('ax-inv:Server:OpenInventory','Trunk-'..plate,{slots=20})
-                            OpenTrunk()
-                        else
-                            QBCore.Functions.Notify("Vehicle is locked..", "error")
-                        end
-                    end
+
+RegisterCommand('openInventory', function()
+    TriggerServerEvent('ax-inv:Server:OpenInventory')
+end, false)
+
+RegisterCommand('openGloveBox', function()
+    local ped = GetPlayerPed(-1) 
+    local coords = GetEntityCoords(ped)
+    if IsPedInAnyVehicle(GetPlayerPed(-1)) then
+        local veh = GetVehiclePedIsIn(ped, false)
+        local plate = GetVehicleNumberPlateText(veh):gsub(' ','')
+        TriggerServerEvent('ax-inv:Server:OpenInventory', 'GloveBox-'..plate, {slots=5})
+    else 
+        local vehicle = QBCore.Functions.GetClosestVehicle()
+        if vehicle ~= 0 and vehicle ~= nil then
+            local trunkcoords = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
+            if (IsBackEngine(GetEntityModel(vehicle))) then
+                trunkcoords = GetOffsetFromEntityInWorldCoords(vehicle, 0, 2.5, 0)
+            end
+            if (GetDistanceBetweenCoords(coords.x, coords.y, coords.z, trunkcoords) < 2.0) and not IsPedInAnyVehicle(ped) then
+                if GetVehicleDoorLockStatus(vehicle) < 2 then
+                    local plate = GetVehicleNumberPlateText(vehicle):gsub(' ','')
+                    TriggerServerEvent('ax-inv:Server:OpenInventory', 'Trunk-'..plate, {slots=20})
+                    OpenTrunk()
+                else
+                    QBCore.Functions.Notify("Vehicle is locked..", "error")
                 end
             end
         end
-        DisableControlAction(0, Keys['TAB'], true)
-        if IsDisabledControlJustPressed(0,Keys['TAB']) then
-            OpenHotbar()
-        end
-        for i=1,6 do 
-            DisableControlAction(0, Keys[tostring(i)], true)
+    end
+end, false)
+
+RegisterCommand('openHotbar', function()
+    OpenHotbar()
+end, false)
+
+RegisterKeyMapping('openInventory', 'Open Inventory', 'keyboard', 'TAB')
+RegisterKeyMapping('openGloveBox', 'Open Glove Box', 'keyboard', 'TAB')
+RegisterKeyMapping('openHotbar', 'Open Hotbar', 'keyboard', 'Z')
+
+CreateThread(function()
+    while true do
+        Wait(0)
+        for i = 1, 6 do
             if IsDisabledControlJustPressed(0, Keys[tostring(i)]) then
                 QBCore.Functions.GetPlayerData(function(PlayerData)
                     if not PlayerData.metadata["isdead"] and not PlayerData.metadata["inlaststand"] and not PlayerData.metadata["ishandcuffed"] then
@@ -44,7 +51,6 @@ CreateThread(function()
                 end)
             end
         end
-        Wait(0)
     end
 end)
 RegisterNetEvent('ax-inv:Client:OpenInventory')

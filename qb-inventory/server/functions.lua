@@ -85,14 +85,14 @@ RemoveItemFromStash = function(id,item,amount,slot)
     end
 end
 
-SaveStash = function(id,items)
+SaveStash = function(id, items)
     if items and id then 
         if Stashes[id] then
-            QBCore.Functions.ExecuteSql(false, "SELECT * FROM `inventories` WHERE `id` = '"..id.."'", function(result)
+            exports.oxmysql:fetch("SELECT * FROM `inventories` WHERE `id` = ?", { id }, function(result)
                 if result[1] ~= nil then
-                    QBCore.Functions.ExecuteSql(false, "UPDATE `inventories` SET `data` = '"..json.encode(items).."' WHERE `id` = '"..id.."'")
+                    exports.oxmysql:execute("UPDATE `inventories` SET `data` = ? WHERE `id` = ?", { json.encode(items), id })
                 else
-                    QBCore.Functions.ExecuteSql(false, "INSERT INTO `inventories` (`id`, `data`) VALUES ('"..id.."', '"..json.encode(items).."')")
+                    exports.oxmysql:execute("INSERT INTO `inventories` (`id`, `data`) VALUES (?, ?)", { id, json.encode(items) })
                 end
             end)
         end
@@ -101,16 +101,19 @@ end
 
 GetStashItems = function(id) 
     local items = {}
-    QBCore.Functions.ExecuteSql(true, "SELECT * FROM `inventories` WHERE `id` = '"..id.."'", function(result)
+
+    exports.oxmysql:fetch("SELECT * FROM `inventories` WHERE `id` = ?", {id}, function(result)
         if result[1] then 
-            result[1] = json.decode(result[1].data)
-            if result[1] then 
-                for k,v in pairs(result[1]) do 
+            local decodedData = json.decode(result[1].data)
+            
+            if decodedData then 
+                for k, v in pairs(decodedData) do 
                     items[v.slot] = v 
                 end
             end
         end
     end)
+
     return items 
 end
 
